@@ -1,70 +1,24 @@
 #!/usr/bin/python3
+"""
+TODO: Handle h, ul, ol, li, p together as they
+    have space between them and the text,
+    so splitting them can divide them into two parts
+TODO: Handle ** b, __ em, [[]], (()) together as
+    they don't have space between them and the text
+"""
 from sys import argv, stderr
 from os import path
-"""
-TODO: Handle h, ul, ol, li, p together as they are have space between them and the text,
-    so splitting them can divide them into two parts
-TODO: Handle ** b, __ em, [[]], (()) together as they don't have space between them and the text
 
-# Heading level 1   <h1>Heading level 1</h1>
-## Heading level 2  <h2>Heading level 1</h2>
-### Heading level 3 <h3>Heading level 1</h3>
-
-- Hello
-- Bye
-<ul>
-    <li>Hello</li>
-    <li>Bye</li>
-</ul>
-
-* Hello
-* Bye
-<ol>
-    <li>Hello</li>
-    <li>Bye</li>
-</ol>
-
-Hello
-
-I'm a text
-with 2 lines
-<p>
-    Hello
-</p>
-<p>
-    I'm a text
-        <br />
-    with 2 lines
-</p>
-"""
 
 def parse_h(line):
-    count = 0
-    buffer = ''
-    for idx in range(len(line)):
-        if line[idx] == '#':
-            count = count + 1
-        else:
-            buffer = buffer + line[idx]
-
-    buffer = buffer.strip()
-    match count:
-        case 1:
-            buffer = f'<h1>{buffer}</h1>\n'
-        case 2:
-            buffer = f'<h2>{buffer}</h2>\n'
-        case 3:
-            buffer = f'<h3>{buffer}</h3>\n'
-        case 4:
-            buffer = f'<h4>{buffer}</h4>\n'
-        case 5:
-            buffer = f'<h5>{buffer}</h5>\n'
-        case 6:
-            buffer = f'<h6>{buffer}</h6>\n'
+    markD = {"#": "h1", "##": "h2", "###": "h3",
+             "####": "h4", "#####": "h5", "######": "h6"}
+    lineSplitted = line.split(' ')
+    hashes = lineSplitted[0]
+    tag = markD[hashes]
+    buffer = line.replace(hashes, f'<{tag}>')
+    buffer = buffer[:-1] + f'</{tag}>\n'
     return buffer
-
-def parse_li(line):
-    return f'<li>{line[1:].strip()}</li>\n'
 
 
 if __name__ == '__main__':
@@ -82,62 +36,60 @@ if __name__ == '__main__':
 
     with open(mdFile, 'r') as readme:
         lines = readme.readlines()
-        in_ul = in_ol = in_p = False
+        in_ul = in_ol = in_para = False
 
-        for line in lines:
+        for i, line in enumerate(lines):
+            # Handling Headings
             if line.startswith('#'):
-                if in_ul or in_ol:
-                    htmlContent += '</ul>\n' if in_ul else '</ol>\n'
-                    in_ul = in_ol = False
-                    if in_p:
-                        htmlContent += '</p>\n'
-                        in_p = False
                 htmlContent += parse_h(line)
 
-            elif line.startswith('-'):  # ul
+            # Handling Unordered List
+            elif line.startswith('-'):
                 if not in_ul:
                     in_ul = True
                     htmlContent += '<ul>\n'
-                    if in_p:
-                        htmlContent += '</p>\n'
-                        in_p = False
-                htmlContent += parse_li(line)
-                
-            elif line.startswith('*'):  # ol
+                htmlContent += f'<li>{line[1:].strip()}</li>\n'
+                if i < len(lines) - 1 and not lines[i + 1][0].startswith('-'):
+                    htmlContent += '</ul>\n'
+                    in_ul = False
+
+            # Handling Ordered List
+            elif line.startswith('*'):
                 if not in_ol:
                     in_ol = True
                     htmlContent += '<ol>\n'
-                    if in_p:
-                        htmlContent += '</p>\n'
-                        in_p = False
-                htmlContent += parse_li(line)
-                
-            elif line == '':
-                if in_ul or in_ol:
-                    htmlContent += '</ul>\n' if in_ul else '</ol>\n'
-                    in_ul = in_ol = False
-                if in_p:
-                    htmlContent += '</p>\n'
-                    in_p = False
-                    
-            else:
-                if in_ul or in_ol:
-                    htmlContent += '</ul>\n' if in_ul else '</ol>\n'
-                    in_ul = in_ol = False
-                if not in_p:
-                    in_p = True
-                    htmlContent += f'<p>'
-                htmlContent += f'{line}'
-                # else:
-                #     in_p = True
-                #     htmlContent += f'<br/><p>{line}</p>'
+                htmlContent += f'<li>{line[1:].strip()}</li>\n'
+                if i < len(lines) - 1 and not lines[i + 1][0].startswith('*'):
+                    htmlContent += '</ol>\n'
+                    in_ol = False
 
-            # Handling the EOF > End Of File
-            if in_ul or in_ol:
-                htmlContent += '</ul>\n' if in_ul else '</ol>\n'
-                in_ul = in_ol = False              
-            if in_p:
-                htmlContent += '</p>\n'
+            # Empty line
+            elif line == '' or line == '\n':
+                pass
+
+            # Handling Para and br
+            elif line:
+                if in_para is False:
+                    in_para = True
+                    htmlContent += '<p>\n'
+
+                htmlContent += f'{line}'
+                if (i < len(lines) - 1 and (lines[i + 1][0] == '\n' or
+                                            lines[i + 1][0].startswith((
+                                                '#', '-', '*')))):
+                    in_para = False
+                    htmlContent += f'</p>\n'
+                elif (i < len(lines) - 1 and
+                        not lines[i + 1][0].startswith(('#', '-', '*'))):
+                    htmlContent += f'<br/>\n'
+
+        # Handling the EOF > End Of File
+        if in_ul or in_ol:
+            htmlContent += '</ul>\n' if in_ul else '</ol>\n'
+            in_ul = in_ol = False
+        if in_para is True:
+            in_para = False
+            htmlContent += '</p>\n'
 
     with open(htmlFile, 'w') as html:
         html.write(htmlContent)
