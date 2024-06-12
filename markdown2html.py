@@ -31,7 +31,7 @@ if __name__ == '__main__':
     htmlContent = ''
 
     if (not path.isfile(mdFile)):
-        print('Missing <filename>')
+        print(f'Missing {mdFile}')
         exit(1)
 
     with open(mdFile, 'r') as readme:
