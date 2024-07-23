@@ -1,0 +1,97 @@
+@import 'config';
+@import 'utilities';
+@import 'buttons';
+@import 'mobile';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: $light-color;
+  font-family: $font-stack;
+  line-height: 1.6;
+}
+
+img {
+  width: 100%;
+}
+
+a {
+  text-decoration: none;
+}
+
+.showcase {
+  height: 600px;
+  @include set-background($primary-color);
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    ul {
+      display: flex;
+      list-style-type: none;
+    }
+
+    li {
+      padding: 15px;
+    }
+
+    a {
+      color: set-color-text($primary-color);
+
+      &:hover {
+        color: $secondary-color;
+      }
+    }
+  }
+}
+
+.showcase-content {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+
+  h1 {
+    font-size: 50px;
+    line-height: 1.2;
+  }
+
+  img {
+    width: 40%;
+  }
+}
+
+$space-amounts: (1, 2, 3, 4, 5);
+@each $space in $space-amounts {
+  .m-#{$space} {
+    margin: #{$space}rem;
+  }
+
+  .my-#{$space} {
+    margin: #{$space}rem 0;
+  }
+
+  .mx-#{$space} {
+    margin: 0 #{$space}rem;
+  }
+
+  .p-#{$space} {
+    padding: #{$space}rem;
+  }
+
+  .py-#{$space} {
+    padding: #{$space}rem 0;
+  }
+
+  .px-#{$space} {
+    padding: 0 #{$space}rem;
+  }
+}

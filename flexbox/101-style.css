@@ -1,0 +1,64 @@
+/* 
+You must use flex
+You are not allowed to use float
+You are not allowed to use text-align
+You are not allowed to use margin or padding
+You are not allowed to change the HTML file
+*/
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  height: 150px;
+  width: 80%;
+}
+
+.box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.box1 {
+  background-color: peru;
+  height: 30%;
+  width: 13%;
+  /* font-size: 25px; */
+}
+
+.box2 {
+  background-color: slateblue;
+  height: 60%;
+  width: 15%;
+  font-size: 30px;
+}
+
+.box3 {
+  background-color: crimson;
+  height: 100%;
+  width: 25%;
+  font-size: 60px;
+}
+
+.box4 {
+  background-color: slateblue;
+  height: 60%;
+  width: 15%;
+  font-size: 30px;
+}
+
+.box5 {
+  background-color: peru;
+  height: 30%;
+  width: 13%;
+}
